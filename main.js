@@ -58,7 +58,7 @@ function StopGame () {
 // Add square on canvas
 function addItem (firstItem) {
   // do not add more than 10 items
-  if (Game.Items.length > maxSquareCount) {
+  if (Game.Items.length >= maxSquareCount) {
     return
   }
   var timeout = GetRandom(1000, 2000)
@@ -70,15 +70,15 @@ function addItem (firstItem) {
     Game.Items.push({
       'x': GetRandom(0, 600),
       'y': 0,
-      'a': GetRandom(30, 40),
-      'speed': GetRandom(1, 5),
+      'a': GetRandom(30, 60),
+      'speed': GetRandom(1, 7),
       'color': GetRandomColor()
     })
   }, timeout)
 }
 
 function GetRandom (min, max) {
-  return min + Math.floor(Math.random() * max)
+  return min + Math.floor(Math.random() * (max - min))
 }
 
 function GetRandomColor () {
