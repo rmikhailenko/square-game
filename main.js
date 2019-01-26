@@ -7,16 +7,14 @@ var Game = {
 var addItemInterval
 var canvas
 var scoreElement
+var maxSquareCount = 10
 
 document.body.onload = initGame
 
+// Add listeners to buttons and canvas
 function initGame () {
   canvas = document.getElementById('canvas')
-  canvas.addEventListener('click', function (event) {
-    var cx = event.pageX - canvas.offsetLeft
-    var cy = event.pageY - canvas.offsetTop
-    checkClickOnSquare(cx, cy)
-  })
+  canvas.addEventListener('click', onCanvasClick)
 
   scoreElement = document.getElementById('score')
 
@@ -29,26 +27,38 @@ function initGame () {
   stopBtn.addEventListener('click', StopGame)
 }
 
-function StartGame() {
+// Get coordinats on canvas
+function onCanvasClick (event) {
+  var cx = event.pageX - canvas.offsetLeft
+  var cy = event.pageY - canvas.offsetTop
+  checkClickOnSquare(cx, cy)
+}
+
+function StartGame () {
   if (!Game.InProgress) {
     Game.InProgress = true
     addItemInterval = setInterval(addItem, 1000, false)
+
     addItem(true)
     animate()
   }
 }
 
-function StopGame() {
+function StopGame () {
+  clearInterval(addItemInterval)
+
   Game.InProgress = false
   Game.Items = []
-  deleteScore()
+  Game.Score = 0
+
+  updateScore()
   animate()
-  clearInterval(addItemInterval)
 }
 
+// Add square on canvas
 function addItem (firstItem) {
   // do not add more than 10 items
-  if (Game.Items.length > 10) {
+  if (Game.Items.length > maxSquareCount) {
     return
   }
   var timeout = GetRandom(1000, 2000)
@@ -79,23 +89,20 @@ function GetRandomColor () {
   return '#' + c() + c() + c()
 }
 
-function increaseScore () {
-  Game.Score += 1
+function updateScore () {
   scoreElement.innerHTML = Game.Score
 }
 
-function deleteScore () {
-  Game.Score = 0
-  scoreElement.innerHTML = Game.Score
-}
-
+// Check click on square and update score
 function checkClickOnSquare (cx, cy) {
   var onSquare = false
   var elemToDelete
+
   for (var i = 0; i < Game.Items.length; i++) {
     var element = Game.Items[i]
     var matchX = element.x <= cx && cx <= element.x + element.a
     var matchY = element.y <= cy && cy <= element.y + element.a
+
     if (matchX && matchY) {
       elemToDelete = i
       onSquare = true
@@ -105,10 +112,12 @@ function checkClickOnSquare (cx, cy) {
 
   if (onSquare) {
     Game.Items.splice(elemToDelete, 1)
-    increaseScore()
+    Game.Score += 1
+    updateScore()
   }
 }
 
+// Drawing game on canvas
 function animate () {
   var ctx = canvas.getContext('2d')
 
@@ -116,8 +125,10 @@ function animate () {
 
   if (Game.InProgress) {
     var items = Game.Items
+
     for (var i = 0; i < items.length; i++) {
       var item = items[i]
+
       ctx.fillStyle = item.color
       ctx.fillRect(item.x, item.y, item.a, item.a)
 
